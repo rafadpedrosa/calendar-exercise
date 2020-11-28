@@ -1,17 +1,23 @@
 <template>
-    <calendar></calendar>
+    <div>
+        <h1 class="text-center">Today: {{ dateNow.format('YYYY-MM-DD') }} </h1>
+        <hr>
+        <calendar :dateNow="dateNow"></calendar>
+    </div>
 </template>
 
 <script>
 import Calendar from "@/components/Calendar";
 
 export default {
-    name: 'Calendar',
-    components:{
+    name: 'CalendarExercise',
+    components: {
         Calendar
     },
-    props: {
-        msg: String
+    computed:{
+        dateNow(){
+            return this.$day(new Date())
+        }
     }
 }
 </script>

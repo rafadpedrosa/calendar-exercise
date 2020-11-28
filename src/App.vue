@@ -1,8 +1,7 @@
 <template>
     <div class="text-center">
         <div id="nav">
-            <router-link to="/">Description</router-link>
-            |
+            <router-link to="/">Description</router-link> |
             <router-link to="/calendarExercise">Calendar Exercise</router-link>
         </div>
     </div>
