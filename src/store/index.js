@@ -4,14 +4,29 @@ import {createStore} from 'vuex'
 export default createStore({
     state: {
         matrixDays: null,
-        calendarType: 'month'
+        calendarType: 'Month',
+        selectedMonth: null,
+        selectedDate: null
     },
     mutations: {
-        INIT_CALENDAR(state, dateNow) { // 42
+        SET_SELECTED_YEAR(state, selectedYear) {
+            state.selectedYear = selectedYear
+        },
+        SET_SELECTED_DATE(state, selectedDate) {
+            state.selectedDate = selectedDate
+            state.selectedMonth = selectedDate
+            state.selectedYear = selectedDate
+        },
+        SET_SELECTED_MONTH(state, selectedMonth) {
+            state.selectedMonth = selectedMonth
+            state.selectedYear = selectedMonth
+        },
+        BUILD_CALENDAR(state, currentDate) {
             const calendarMatrixNumber = 42
-            const fistDayOfMonth = dateNow.date(1)
-            const weekDayIndex = fistDayOfMonth.day()
-            const calendarStartDate = fistDayOfMonth.subtract(7 - (weekDayIndex), 'day')
+            const fistDayOfMonth = currentDate.date(1).subtract(1, 'day')
+            // const weekDayIndex = fistDayOfMonth.day()
+
+            let calendarStartDate = fistDayOfMonth.startOf('week')
 
             let matrixVerticalIndex = -1
 
@@ -26,12 +41,16 @@ export default createStore({
 
                     return matrixDays
                 }, [])
-        }
+        },
     },
     actions: {},
     getters: {
+        calendarType: state => state.calendarType,
         matrixDays: state => state.matrixDays || [],
-        calendarType: state => state.calendarType
+
+        selectedYear: state => state.selectedYear,
+        selectedMonth: state => state.selectedMonth,
+        selectedDate: state => state.selectedDate
     },
     modules: {}
 })
