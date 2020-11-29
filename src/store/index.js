@@ -6,9 +6,15 @@ export default createStore({
         matrixDays: null,
         calendarType: 'Month',
         selectedMonth: null,
-        selectedDate: null
+        selectedDate: null,
+        selectedReminder: null,
+        reminders: {},
     },
     mutations: {
+        SET_SELECTED_REMINDER(state, selectedReminder) {
+            console.log(selectedReminder)
+            state.selectedReminder = selectedReminder
+        },
         SET_SELECTED_YEAR(state, selectedYear) {
             state.selectedYear = selectedYear
         },
@@ -42,15 +48,44 @@ export default createStore({
                     return matrixDays
                 }, [])
         },
+        ADD_REMINDER(state, newReminder) {
+            const daysReminders = state.reminders[newReminder.dateKey] || []
+
+            newReminder.index = daysReminders.length
+            daysReminders.push(newReminder)
+            state.reminders[newReminder.dateKey] = daysReminders
+        },
+        UPDATE_REMINDER(state, reminderToUpdate) {
+            state.reminders[reminderToUpdate.dateKey][reminderToUpdate.index] = reminderToUpdate
+        },
+        REMOVE_REMINDER(state, removeToReminder) {
+            state.reminders[removeToReminder.dateKey].splice(removeToReminder.index,1)
+        }
     },
-    actions: {},
+    actions: {
+        addReminder({getters, commit}, reminderObject) {
+            commit('ADD_REMINDER', reminderObject)
+            commit('BUILD_CALENDAR', getters.selectedDate)
+        },
+        removeReminder({getters, commit}, reminderObject) {
+            commit('REMOVE_REMINDER', reminderObject)
+            commit('SET_SELECTED_REMINDER', null)
+            commit('BUILD_CALENDAR', getters.selectedDate)
+        },
+        updateReminder({getters, commit}, reminderObject) {
+            commit('UPDATE_REMINDER', reminderObject)
+            commit('BUILD_CALENDAR', getters.selectedDate)
+        }
+    },
     getters: {
         calendarType: state => state.calendarType,
         matrixDays: state => state.matrixDays || [],
 
+        reminders: state => state.reminders,
+        selectedReminder: state => state.selectedReminder,
         selectedYear: state => state.selectedYear,
         selectedMonth: state => state.selectedMonth,
-        selectedDate: state => state.selectedDate
+        selectedDate: state => state.selectedDate,
     },
     modules: {}
 })
