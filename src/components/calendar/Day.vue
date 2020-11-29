@@ -8,8 +8,9 @@
         <div class="reminders col-12">
             <div @click.stop.prevent="selectReminder(reminder)" class="reminder px-2"
                  v-for="reminder in sortedRemindersByTime"
+                 :class="[reminder.color]"
                  :key="reminder.index">
-                <div class="reminder-text">{{ reminder.description }}</div>
+                <div class="reminder-text" >{{ reminder.description }}</div>
             </div>
         </div>
     </div>
@@ -70,9 +71,11 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .calendar-day {
+    overflow-y: auto;
     cursor: pointer;
     height: 120px;
     width: 100%;
+    padding-bottom: 15px;
 }
 
 .day-number {
@@ -115,6 +118,11 @@ export default {
 .reminder {
     border: 1px solid #ccc;
     border-radius: 3px;
+    color: white;
+}
+
+.reminder.bg-warning {
+    color: black;
 }
 
 .reminder:hover {
