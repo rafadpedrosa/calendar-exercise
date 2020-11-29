@@ -26,19 +26,33 @@
                          :current-date="currentDate"
                          :selected-date="selectedDate"
                          :selected-month="selectedMonth"
-                         v-on:change-selected-date="changeSelectedDate" :type="calendarType"></day>
+                         :reminders="dayReminders(day)"
+                         :type="calendarType"
+                         v-on:change-selected-date="changeSelectedDate"
+                         v-on:select-reminder="selectReminder"
+                    ></day>
                 </td>
             </tr>
             </tbody>
         </table>
+
+        <reminder-form
+            :current-date="currentDate"
+            :selected-date="selectedDate"
+            :selected-reminder="selectedReminder"
+            v-on:add-reminder="addReminder"
+            v-on:remove-reminder="removeReminder"
+            v-on:update-reminder="updateReminder"
+        ></reminder-form>
     </div>
 </template>
 
 <script>
 import {weekDays} from '@/consts/calendar.js'
-import {mapGetters} from 'vuex'
+import {mapGetters, mapActions} from 'vuex'
 import Day from '@/components/calendar/Day'
 import Months from '@/components/calendar/Months'
+import ReminderForm from '@/components/calendar/ReminderForm'
 
 export default {
     name: 'Calendar',
@@ -48,6 +62,7 @@ export default {
     components: {
         Day,
         Months,
+        ReminderForm,
     },
     beforeMount() {
         this.changeSelectedYear(this.currentDate)
@@ -55,7 +70,15 @@ export default {
         this.changeSelectedDate(this.currentDate)
     },
     methods: {
+        ...mapActions(['addReminder', 'removeReminder', 'updateReminder']),
+        selectReminder(reminderObject) {
+            this.$store.commit("SET_SELECTED_REMINDER", reminderObject)
+        },
+        dayReminders(day) {
+            return this.reminders[day.format('YYYY-MM-DD')] || []
+        },
         changeSelectedDate(selectedDate) {
+            this.$store.commit("SET_SELECTED_REMINDER", null)
             this.$store.commit("SET_SELECTED_DATE", selectedDate)
         },
         changeSelectedYear(selectedYear) {
@@ -63,21 +86,24 @@ export default {
         },
         changeSelectedMonth(selectedMonth) {
             this.$store.commit("SET_SELECTED_MONTH", selectedMonth)
+        },
+        updateCalendar(date){
+            this.$store.commit('BUILD_CALENDAR', date)
         }
     },
     watch: {
-        selectedDate(value) {
-            this.$store.commit('BUILD_CALENDAR', value)
+        selectedDate(date) {
+            this.updateCalendar(date)
         },
-        selectedMonth(value) {
-            this.$store.commit('BUILD_CALENDAR', value)
+        selectedMonth(date) {
+            this.updateCalendar(date)
         },
-        selectedYeah(value) {
-            this.$store.commit('BUILD_CALENDAR', value)
+        selectedYeah(date) {
+            this.updateCalendar(date)
         }
     },
     computed: {
-        ...mapGetters(['matrixDays', 'calendarType', 'selectedYear', 'selectedMonth', 'selectedDate']),
+        ...mapGetters(['matrixDays', 'calendarType', 'selectedYear', 'selectedMonth', 'selectedDate', 'selectedReminder', 'reminders',]),
         weekDays() {
             return weekDays;
         },
