@@ -53,7 +53,7 @@ export default {
             return monthIndex === this.getSelectedMonth.month()
         },
         isActualMonth(monthIndex) {
-            return monthIndex === this.currentDate.month()
+            return monthIndex === this.currentDate.month() && this.currentDate.year() === this.selectedMonth.year()
         }
     }
 
