@@ -6,7 +6,7 @@
             <h4>Description</h4>
         </div>
 
-        <p>This project is designed to test your knowledge of front-end web technologies and assess your
+        <p >This project is designed to test your knowledge of front-end web technologies and assess your
         ability to create front-end UI products with attention to details, cross-browser compatibility,
         standards, and reusability.
         Assignment
@@ -24,30 +24,31 @@
 
         <h4>Mandatory Features</h4>
         <hr>
-        <p>● Ability to add a new "reminder" (max 30 chars) for a user entered day and time. Also,
+        <p class="text-success">● Ability to add a new "reminder" (max 30 chars) for a user entered day and time. Also,
             include a city.</p>
-        <p>● Display reminders on the calendar view in the correct time order.</p>
-        <p>● Allow the user to select color when creating a reminder and display it appropriately.</p>
-        <p>● Ability to edit reminders – including changing text, city, day, time and color.</p>
-        <p>● Add a weather service call from a free API such as Open Weather Map, and get the</p>
-        weather forecast (ex. Rain) for the date of the calendar reminder based on the city.
-        <p>● Unit test the functionality: Ability to add a new "reminder" (max 30 chars) for a user</p>
+        <p class="text-success">● Display reminders on the calendar view in the correct time order.</p>
+        <p class="text-success">● Allow the user to select color when creating a reminder and display it appropriately.</p>
+        <p class="text-success">● Ability to edit reminders – including changing text, city, day, time and color.</p>
+        <p class="text-danger">● Add a weather service call from a free API such as Open Weather Map, and get the
+        weather forecast (ex. Rain) for the date of the calendar reminder based on the city.</p>
+        <p class="text-info">● Unit test the functionality: Ability to add a new "reminder" (max 30 chars) for a user</p>
         entered day and time. Also, include a city.
         <h4>Bonus (Optional)</h4>
         <hr>
-        <p>● Expand the calendar to support more than the current month.</p>
-        <p>● Properly handle overflow when multiple reminders appear on the same date.</p>
-        <p>● Functionality to delete one or ALL the reminders for a specific day</p>
-        Considerations
-        <p>● Redux (or any other state manager) structure of the calendar.</p>
-        <p>● The project is totally focused on the front-end; please ignore the back-end.</p>
-        <p>● Keep your code versioned with Git.</p>
-        <p>● Feel free to use small helper libraries for:</p>
-        <p class="pl-4">○ UI Elements.</p>
-        <p class="pl-4">○ Date/Time handling.</p>
-        <p>● You must create the calendar component yourself. Do not use calendar libraries like</p>
-        FullCalendar or Bootstrap Calendar.
-        <p>● If you use an external API, make sure to provide working API keys.</p>
+        <p class="text-success" >● Expand the calendar to support more than the current month.</p>
+        <p class="text-danger">● Properly handle overflow when multiple reminders appear on the same date.</p>
+        <p  class="text-info">● Functionality to delete one or ALL the reminders for a specific day</p>
+        <h4>Considerations</h4>
+        <hr>
+        <p class="text-success">● Redux (or any other state manager) structure of the calendar.</p>
+        <p class="text-success">● The project is totally focused on the front-end; please ignore the back-end.</p>
+        <p class="text-success">● Keep your code versioned with Git.</p>
+        <p class="text-success">● Feel free to use small helper libraries for:</p>
+        <p class="text-success pl-4">○ UI Elements.</p>
+        <p class="text-success pl-4">○ Date/Time handling.</p>
+        <p class="text-success">● You must create the calendar component yourself. Do not use calendar libraries like
+        FullCalendar or Bootstrap Calendar.</p>
+        <p class="text-success">● If you use an external API, make sure to provide working API keys.</p>
         <h4>Deliverables</h4>
         <hr>
         When you finish the assignment, send a zip file (don’t forget to include the .git/ folder.) or upload
