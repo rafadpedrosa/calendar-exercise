@@ -1,11 +1,14 @@
-import {mount} from '@vue/test-utils'
+import { mount  } from '@vue/test-utils'
 import dayjs from 'dayjs'
-import App from '@/../tests/unit/components/ReminderFormTestingPropouses'
+import App from '@/components/calendar/ReminderForm'
 import store from '@/store/index'
 import {nextTick} from 'vue'
 
+import mitt from 'mitt'
+
+const emitter = mitt()
 const factory = (props) => {
-    return mount(App, {global: {plugins: [store]}, props})
+    return mount(App, {global: {plugins: [store], mocks:{ $emitter: emitter } }, props })
 }
 
 const currentDate = dayjs(new Date)
@@ -25,6 +28,7 @@ const initReminderTearUp = (reminder) => {
         selectedDate: currentDate,
         selectedReminder: reminder,
     })
+
     vm = cmp.vm
 }
 
@@ -38,7 +42,6 @@ describe('New Reminder Tests ', () => {
         vm.description = 'Rafael Pedrosa'
 
         await nextTick()
-
         await cmp.find('#save-button').trigger('click')
 
         expect(vm.color).not.toBeNull()
