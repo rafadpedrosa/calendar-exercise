@@ -1,39 +1,85 @@
-import {mount} from '@vue/test-utils'
-import jest from 'jest'
+import { mount  } from '@vue/test-utils'
 import dayjs from 'dayjs'
-import App from '@/../tests/unit/components/ReminderFormTestingPropouses'
+import App from '@/components/calendar/ReminderForm'
 import store from '@/store/index'
 import {nextTick} from 'vue'
 
+import mitt from 'mitt'
+
+const emitter = mitt()
 const factory = (props) => {
-    return mount(App, {global: {plugins: [store]}, props})
+    return mount(App, {global: {plugins: [store], mocks:{ $emitter: emitter } }, props })
 }
 
-describe('Reminder Component Tests', () => {
-    const currentDate = dayjs(new Date)
-    let wrapper;
+const currentDate = dayjs(new Date)
 
+let cmp, vm;
+let saveSpy;
+let addReminderSpy;
+let updateReminderSpy;
+
+const initReminderTearUp = (reminder) => {
+    saveSpy = jest.spyOn(App.methods, 'save')
+    addReminderSpy = jest.spyOn(App.methods, 'addReminder')
+    updateReminderSpy = jest.spyOn(App.methods, 'updateReminder')
+
+    cmp = factory({
+        currentDate: currentDate,
+        selectedDate: currentDate,
+        selectedReminder: reminder,
+    })
+
+    vm = cmp.vm
+}
+
+describe('New Reminder Tests ', () => {
     beforeAll(() => {
-        wrapper = factory({
-            currentDate: currentDate,
-            selectedDate: currentDate,
-            selectedReminder: currentDate
-        })
+        initReminderTearUp(null)
     });
 
-    it('Should Create A Reminder!', async () => {
-        wrapper.vm.time = '13:00'
-        wrapper.vm.description = 'Rafael Pedrosa'
+    it('Should Create A New Reminder', async () => {
+        vm.time = '13:00'
+        vm.description = 'Rafael Pedrosa'
 
-        const saveSpy = jest.spyOn(wrapper.vm, 'save')
-        const addReminderSpy = jest.spyOn(wrapper.vm, 'addReminder')
+        await nextTick()
+        await cmp.find('#save-button').trigger('click')
 
-        await wrapper.find('#save-button').trigger('click')
+        expect(vm.color).not.toBeNull()
+        expect(saveSpy).toBeCalled()
+        expect(addReminderSpy).toBeCalled()
+        expect(updateReminderSpy).not.toBeCalled()
+    })
+})
+
+describe("Validate Reminder",  () => {
+    beforeAll(() => {
+        initReminderTearUp()
+    });
+
+    it('Should Validate Reminder blocking creation', async () => {
+        vm.time = ''
+        vm.description = 'R'
 
         await nextTick()
 
-        expect(wrapper.vm.color).not.toBeNull()
+        await cmp.find('#save-button').trigger('click')
+
         expect(saveSpy).toBeCalled()
         expect(addReminderSpy).toBeCalled()
+        expect(cmp.emitted('add-reminder')).toBeFalsy()
+    })
+
+    it('Should Validate Reminder and Allow creation', async () => {
+        vm.time = '13:00'
+        vm.description = 'Rafael'
+
+        await cmp.find('#save-button').trigger('click')
+
+        await nextTick()
+
+        expect(saveSpy).toBeCalled()
+        expect(addReminderSpy).toBeCalled()
+        expect(cmp.emitted('add-reminder')).toBeTruthy()
     })
 })
+
