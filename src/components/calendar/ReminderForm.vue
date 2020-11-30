@@ -3,7 +3,7 @@
 
         <!-- Modal content -->
         <div class="modal-content">
-            <p><span ref="closeModal" id="closeModal" class="close">&times;</span></p>
+            <p><span ref="closeModal" id="closeModal" class="close" @click="close">&times;</span></p>
             <div class="modal-body">
                 <form id="reminderForm">
                     <p>
