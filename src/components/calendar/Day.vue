@@ -31,7 +31,6 @@ export default {
     },
     methods: {
         selectReminder(reminder) {
-            console.error(":::", reminder)
             this.$emit('select-reminder', {dateKey: this.selectedDate.format('YYYY-MM-DD'), ...reminder})
             // eslint-disable-next-line no-undef
             $('#reminderFormModal').modal('show')

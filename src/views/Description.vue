@@ -1,5 +1,6 @@
 <template>
     <div class="home offset-lg-2 col-lg-8 offset-md-1 col-md-10 text-justify">
+        <div v-if="msg">{{msg}}</div>
         <div class="text-center">
             <img alt="Vue logo" src="../assets/logo.png">
             <h3>Front-end Javascript Challenge</h3>
@@ -31,12 +32,12 @@
         <p class="text-success">● Ability to edit reminders – including changing text, city, day, time and color.</p>
         <p class="text-danger">● Add a weather service call from a free API such as Open Weather Map, and get the
         weather forecast (ex. Rain) for the date of the calendar reminder based on the city.</p>
-        <p class="text-info">● Unit test the functionality: Ability to add a new "reminder" (max 30 chars) for a user</p>
-        entered day and time. Also, include a city.
+        <p class="text-info">● Unit test the functionality: Ability to add a new "reminder" (max 30 chars) for a user
+        entered day and time. Also, <span class="text-danger">include a city.</span></p>
         <h4>Bonus (Optional)</h4>
         <hr>
         <p class="text-success" >● Expand the calendar to support more than the current month.</p>
-        <p class="text-danger">● Properly handle overflow when multiple reminders appear on the same date.</p>
+        <p class="text-success">● Properly handle overflow when multiple reminders appear on the same date.</p>
         <p  class="text-info">● Functionality to delete one or ALL the reminders for a specific day</p>
         <h4>Considerations</h4>
         <hr>
@@ -62,5 +63,8 @@
 // @ is an alias to /src
 export default {
     name: 'Description',
+    props: {
+        msg: String
+    }
 }
 </script>

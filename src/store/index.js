@@ -1,5 +1,4 @@
 import {createStore} from 'vuex'
-// import calendarConst from '@/consts/calendar'
 
 export default createStore({
     state: {
@@ -12,7 +11,6 @@ export default createStore({
     },
     mutations: {
         SET_SELECTED_REMINDER(state, selectedReminder) {
-            console.log(selectedReminder)
             state.selectedReminder = selectedReminder
         },
         SET_SELECTED_YEAR(state, selectedYear) {
