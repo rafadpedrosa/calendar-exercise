@@ -22,15 +22,7 @@
             <tbody>
             <tr v-for="(week, index) in matrixDays" :key="index">
                 <td v-for="day in week" :key="day.format('MM-DD')" class="p-0">
-                    <day :day="day"
-                         :current-date="currentDate"
-                         :selected-date="selectedDate"
-                         :selected-month="selectedMonth"
-                         :reminders="dayReminders(day)"
-                         :type="calendarType"
-                         v-on:change-selected-date="changeSelectedDate"
-                         v-on:select-reminder="selectReminder"
-                    ></day>
+                    <!-- testing propouses -->
                 </td>
             </tr>
             </tbody>
@@ -50,9 +42,8 @@
 <script>
 import {weekDays} from '@/consts/calendar.js'
 import {mapGetters, mapActions} from 'vuex'
-import Day from '@/components/calendar/Day'
 import Months from '@/components/calendar/Months'
-import ReminderForm from '@/components/calendar/ReminderForm'
+import ReminderForm from '@/../tests/unit/components/ReminderFormTestingPropouses'
 
 export default {
     name: 'Calendar',
@@ -60,7 +51,6 @@ export default {
         currentDate: Object
     },
     components: {
-        Day,
         Months,
         ReminderForm,
     },
