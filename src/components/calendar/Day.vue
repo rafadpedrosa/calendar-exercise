@@ -32,13 +32,11 @@ export default {
     methods: {
         selectReminder(reminder) {
             this.$emit('select-reminder', {dateKey: this.selectedDate.format('YYYY-MM-DD'), ...reminder})
-            // eslint-disable-next-line no-undef
-            $('#reminderFormModal').modal('show')
+            this.$emitter.emit('show-modal')
         },
         changeSelectedDay() {
             if (!this.isDifferentMonth) {
-                // eslint-disable-next-line no-undef
-                $('#reminderFormModal').modal('show')
+                this.$emitter.emit('show-modal')
             }
             this.$emit('change-selected-date', this.day)
         }
