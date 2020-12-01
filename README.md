@@ -32,9 +32,5 @@ The biggest and was this one: https://github.com/bootstrap-vue/bootstrap-vue/iss
 
 Even tho, I hope you guys like it, almost everything was done.
 
-## Knowissues
-
-- Change pages, will break the calendar reminder. 
-
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
