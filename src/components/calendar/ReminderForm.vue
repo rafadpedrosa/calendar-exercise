@@ -32,9 +32,37 @@
                         <small id="reminderDescriptionHelp" class="form-text text-muted">Description should be less than
                             30 chars.</small>
                     </div>
+                    <div class="form-group">
+                        <label for="reminderDescription">City</label>
+                        <autocomplete
+                            ref="autocomplete"
+                            @hit="city = $event"
+                            :serializer="s => s.name"
+                            placeholder="Type an City"
+                            :data="cities"
+                            auto-select
+                        ></autocomplete>
+                    </div>
+
+                    <div class="col-md-12 border-light-gray border rounded d-sm-inline-flex" v-if="weather && weather.description">
+                        <div class="col-5 text-center">
+                            <img  :src="weather.iconImage" :alt="weather.description" />
+                            <div><span>{{weather.description}}</span></div>
+                        </div>
+                        <div class="col-7 py-2 small">
+                            <ul style="list-style-type: none;" class="m-0  border-left border-light-gray">
+                                <li>Feels Like: {{ weather.temp.feels_like }}°C</li>
+                                <li>Humidity: {{ weather.temp.humidity }}</li>
+                                <li>Pressure: {{ weather.temp.pressure }}</li>
+                                <li>Temp Current: {{ weather.temp.temp_current }}°C</li>
+                                <li>Temp Max: {{ weather.temp.temp_max }}°C</li>
+                                <li>Temp Min: {{ weather.temp.temp_min }}°C</li>
+                            </ul>
+                        </div>
+                    </div>
                 </form>
 
-                <div class="">
+                <div class="pt-3">
                     <p><span>Selected Color:</span>
                         <button class="block-color mx-1" :class="[color]"></button>
                     </p>
@@ -57,7 +85,11 @@
 </template>
 
 <script>
-import {weekDays} from '@/consts/calendar'
+import { ref } from 'vue'
+import {weekDays, weatherIcons} from '@/consts/calendar'
+import citiesJson from '@/consts/city.list.json'
+import '@trevoreyre/autocomplete-vue/dist/style.css'
+import axios from 'axios'
 
 export default {
     name: "ReminderForm",
@@ -66,18 +98,29 @@ export default {
             description: '',
             time: '',
             color: 'bg-info',
+            city: null,
+            weather: {},
             colorButtons: [
                 {color: 'bg-success'},
                 {color: 'bg-warning'},
                 {color: 'bg-info'},
                 {color: 'bg-danger'},
-            ]
+            ],
         }
     },
     props: {
         currentDate: Object,
         selectedDate: Object,
         selectedReminder: Object
+    },
+    setup () {
+        let reminderFormModal = ref('reminderFormModal')
+        let autocomplete = ref('autocomplete')
+
+        return {
+            reminderFormModal,
+            autocomplete
+        }
     },
     mounted() {
         this.configModalOutSideClick()
@@ -96,16 +139,16 @@ export default {
             // When the user clicks anywhere outside of the modal, close it
             window.onclick = function (event) {
                 if (event.target == modal) {
-                    modal.style.display = "none";
+                    this.hideModal()
                 }
             }
         },
         showModal() {
-            this.$refs.reminderFormModal.style.display = "block";
+            if(this.reminderFormModal) this.reminderFormModal.style.display = "block";
         },
         hideModal() {
             this.cleanInputs()
-            this.$refs.reminderFormModal.style.display = "none";
+            if(this.reminderFormModal)  this.reminderFormModal.style.display = "none";
         },
         save() {
             if (!this.selectedReminder) {
@@ -115,7 +158,9 @@ export default {
             }
         },
         addReminder() {
-            if (this.time && this.description && this.description.length > 5) {
+            const city = this.city || {}
+
+            if (this.time && this.description && this.description.length > 5 && city.description) {
                 this.$emit('add-reminder', this.reminderObject())
                 this.$emitter.emit('hide-modal')
             }
@@ -130,7 +175,6 @@ export default {
             this.$emitter.emit('hide-modal')
         },
         close() {
-            this.description = ''
             this.$emitter.emit('hide-modal')
         },
         reminderObject() {
@@ -145,17 +189,53 @@ export default {
             }
         },
         cleanInputs() {
+            if(this.autocomplete) this.autocomplete.inputValue = ""
+
             this.description = ''
             this.time = ''
             this.color = 'bg-info'
+            this.weather = {}
+            this.city = null
         },
         setReminderSelected(selectedValue){
             this.description = selectedValue.description
             this.time = selectedValue.time
             this.color = selectedValue.color || 'bg-info'
+        },
+        setWeather({data}) {
+            const convertCelsius = (temperature) => {
+                return Math.round(temperature - 273.15)
+            }
+
+            const wind = `${(data.wind.speed * 1000)/ 60}km/h`
+
+            const temp = {
+                feels_like : convertCelsius(data.main.feels_like),
+                humidity: data.main.humidity,
+                pressure: data.main.pressure,
+                temp_current : convertCelsius(data.main.temp),
+                temp_max : convertCelsius(data.main.temp_max),
+                temp_min : convertCelsius(data.main.temp_min),
+            }
+
+            // need to read more the docs. Sometimes come two. Should it be the possibilities of the day?
+            const dataWeather = data.weather[0] || []
+            const [,iconCode, dayNightCode] = /(\d+)(\w)/g.exec(dataWeather.icon)
+            const iconImage = this.weatherIcons[iconCode][dayNightCode]
+
+            this.weather = {
+                description: dataWeather.description,
+                iconImage,
+                wind,
+                temp
+            }
         }
     },
     watch: {
+        city(city){
+            if(city) axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${city.name}&appid=1c04382da56e8ee5c86103ca068e5785`)
+                .then(this.setWeather.bind(this))
+        },
         selectedReminder(selectedValue) {
             selectedValue = selectedValue || {}
 
@@ -163,6 +243,12 @@ export default {
         },
     },
     computed: {
+        weatherIcons(){
+            return weatherIcons
+        },
+        cities() {
+            return citiesJson
+        },
         actualSelectedDayFormatted() {
             return `${weekDays[this.selectedDate.day()]} ${this.selectedDate.format('DD')} from ${this.selectedDate.format('MMMM')}`
         }
@@ -194,6 +280,11 @@ export default {
     padding: 20px;
     border: 1px solid #888;
     width: 30%;
+    min-width: 560px;
+}
+
+.border-light-gray {
+    border-color: #ccc;
 }
 
 /* The Close Button */
