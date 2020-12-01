@@ -18,25 +18,25 @@
                     </p>
 
                     <div class="form-group">
-                        <label for="reminderDate">Description</label>
-                        <input type="time" v-model="time" class="form-control" id="reminderDate"
+                        <label for="reminderDate">Time *</label>
+                        <input name="time" type="time" v-model="time" class="form-control" id="reminderDate"
                                aria-describedby="reminderHelp" placeholder="Enter Reminder Description" required>
                         <small id="reminderDateHelp" class="form-text text-muted">Description should be less than 30
                             chars.</small>
                     </div>
                     <div class="form-group">
-                        <label for="reminderDescription">Description</label>
-                        <input required maxlength="30" @keydown.enter="save" type="text" v-model="description"
+                        <label for="reminderDescription">Description *</label>
+                        <input name="description" required maxlength="30" @keydown.enter.stop.prevent="save" type="text" v-model="description"
                                class="form-control" id="reminderDescription" aria-describedby="reminderHelp"
                                placeholder="Enter Reminder Description">
                         <small id="reminderDescriptionHelp" class="form-text text-muted">Description should be less than
                             30 chars.</small>
                     </div>
                     <div class="form-group">
-                        <label for="reminderDescription">City</label>
+                        <label for="reminderDescription">City *</label>
                         <autocomplete
-                            ref="autocomplete"
-                            @hit="city = $event"
+                            ref="autocompleteComponent"
+                            @hit="fetchWeather($event)"
                             :serializer="s => s.name"
                             placeholder="Type an City"
                             :data="cities"
@@ -72,9 +72,9 @@
             </div>
             <div class="modal-footer">
                 <button type="submit" class="btn btn-danger" form="reminderForm" v-if="selectedReminder"
-                        @click="removeReminder">Remove Reminder
+                        @click.stop.prevent="removeReminder">Remove Reminder
                 </button>
-                <button id="save-button" type="submit" class="btn btn-primary" form="reminderForm" @click="save">
+                <button id="save-button" type="submit" class="btn btn-primary" form="reminderForm" @click.stop.prevent="save">
                     {{ selectedReminder ? 'Update Reminder' : 'Add Reminder' }}
                 </button>
                 <button type="button" class="btn btn-secondary" @click="close">Close</button>
@@ -115,11 +115,11 @@ export default {
     },
     setup () {
         let reminderFormModal = ref('reminderFormModal')
-        let autocomplete = ref('autocomplete')
+        let autocompleteComponent = ref('autocompleteComponent')
 
         return {
             reminderFormModal,
-            autocomplete
+            autocompleteComponent
         }
     },
     mounted() {
@@ -137,10 +137,8 @@ export default {
             var modal = document.getElementById("reminderFormModal");
 
             // When the user clicks anywhere outside of the modal, close it
-            window.onclick = function (event) {
-                if (event.target == modal) {
-                    this.hideModal()
-                }
+            window.onclick = (event) => {
+                if (event.target == modal) this.hideModal()
             }
         },
         showModal() {
@@ -160,14 +158,13 @@ export default {
         addReminder() {
             const city = this.city || {}
 
-            if (this.time && this.description && this.description.length > 5 && city.description) {
+            if (this.time && this.description && this.description.length > 5 && city.name) {
                 this.$emit('add-reminder', this.reminderObject())
                 this.$emitter.emit('hide-modal')
             }
         },
         removeReminder() {
             this.$emit('remove-reminder', this.reminderObject())
-            this.cleanInputs()
             this.$emitter.emit('hide-modal')
         },
         updateReminder() {
@@ -185,11 +182,12 @@ export default {
                 description: this.description,
                 time: this.time,
                 index: selectedReminder.index,
+                city: this.city,
                 color: this.color
             }
         },
         cleanInputs() {
-            if(this.autocomplete) this.autocomplete.inputValue = ""
+            if(this.autocompleteComponent) this.autocompleteComponent.inputValue = ""
 
             this.description = ''
             this.time = ''
@@ -197,10 +195,21 @@ export default {
             this.weather = {}
             this.city = null
         },
-        setReminderSelected(selectedValue){
+        setReminderSelected(selectedValue = { city: {} }){
+            selectedValue.city = selectedValue.city || { city: {} }
+
             this.description = selectedValue.description
             this.time = selectedValue.time
             this.color = selectedValue.color || 'bg-info'
+            this.autocompleteComponent.inputValue = selectedValue.city.name || ""
+
+            if(selectedValue.city.name) this.fetchWeather(selectedValue.city)
+        },
+        fetchWeather(city){
+            this.city = city
+
+            if(city) axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${city.name}&appid=1c04382da56e8ee5c86103ca068e5785`)
+                .then(this.setWeather.bind(this))
         },
         setWeather({data}) {
             const convertCelsius = (temperature) => {
@@ -229,13 +238,11 @@ export default {
                 wind,
                 temp
             }
+
+            this.city.weather = this.weather
         }
     },
     watch: {
-        city(city){
-            if(city) axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${city.name}&appid=1c04382da56e8ee5c86103ca068e5785`)
-                .then(this.setWeather.bind(this))
-        },
         selectedReminder(selectedValue) {
             selectedValue = selectedValue || {}
 
