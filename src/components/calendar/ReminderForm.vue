@@ -88,7 +88,6 @@
 import { ref } from 'vue'
 import {weekDays, weatherIcons} from '@/consts/calendar'
 import citiesJson from '@/consts/city.list.json'
-import '@trevoreyre/autocomplete-vue/dist/style.css'
 import axios from 'axios'
 
 export default {
