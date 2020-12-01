@@ -7,13 +7,16 @@
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint",
-    "watch:unit": "vue-cli-service test:unit --watch"
+    "watch:unit": "vue-cli-service test:unit --watch --silent"
   },
   "dependencies": {
+    "@trevoreyre/autocomplete-vue": "^2.2.0",
+    "axios": "^0.21.0",
     "bootstrap-icons": "^1.1.0",
     "core-js": "^3.6.5",
     "mitt": "^2.1.0",
     "vue": "^3.0.0",
+    "vue-bootstrap-typeahead": "^0.2.6",
     "vue-router": "^4.0.0-0",
     "vuex": "^4.0.0-0"
   },

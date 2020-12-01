@@ -8,7 +8,7 @@ import mitt from 'mitt'
 
 const emitter = mitt()
 const factory = (props) => {
-    return mount(App, {global: {plugins: [store], mocks:{ $emitter: emitter } }, props })
+    return mount(App, { global: {plugins: [store], mocks:{ $emitter: emitter } }, props})
 }
 
 const currentDate = dayjs(new Date)
@@ -72,6 +72,7 @@ describe("Validate Reminder",  () => {
     it('Should Validate Reminder and Allow creation', async () => {
         vm.time = '13:00'
         vm.description = 'Rafael'
+        vm.city = {"id":3390760,"name":"Recife","state":"","country":"BR","coord":{"lon":-34.881111,"lat":-8.05389}}
 
         await cmp.find('#save-button').trigger('click')
 
