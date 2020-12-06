@@ -28,8 +28,7 @@
                         <input name="description" required maxlength="30" @keydown.enter.stop.prevent="save" type="text" v-model="description"
                                class="form-control" id="reminderDescription" aria-describedby="reminderHelp"
                                placeholder="Enter Reminder Description">
-                        <small id="reminderDescriptionHelpRequired" v-if="isDescriptionValid" class="form-text text-danger">Description is required should be less than 30 chars.</small>
-                        <small id="reminderDescriptionHelpLength" v-if="isDescriptionValid" class="form-text text-danger">Description is should have more than 5 and than 30 chars.</small>
+                        <small id="reminderDescriptionHelpRequired" v-if="isDescriptionValid" class="form-text text-danger">Description is required and should be less than 30 chars.</small>
                     </div>
                     <div class="form-group">
                         <label for="reminderDescription">Search for a City</label>
