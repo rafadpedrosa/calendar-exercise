@@ -21,29 +21,32 @@
                         <label for="reminderDate">Time *</label>
                         <input name="time" type="time" v-model="time" class="form-control" id="reminderDate"
                                aria-describedby="reminderHelp" placeholder="Enter Reminder Description" required>
-                        <small id="reminderDateHelp" class="form-text text-muted">Description should be less than 30
-                            chars.</small>
+                        <small id="reminderDateHelp" v-if="isTimeValid" class="form-text text-danger">Time is required</small>
                     </div>
                     <div class="form-group">
                         <label for="reminderDescription">Description *</label>
                         <input name="description" required maxlength="30" @keydown.enter.stop.prevent="save" type="text" v-model="description"
                                class="form-control" id="reminderDescription" aria-describedby="reminderHelp"
                                placeholder="Enter Reminder Description">
-                        <small id="reminderDescriptionHelp" class="form-text text-muted">Description should be less than
-                            30 chars.</small>
+                        <small id="reminderDescriptionHelpRequired" v-if="isDescriptionValid" class="form-text text-danger">Description is required should be less than 30 chars.</small>
+                        <small id="reminderDescriptionHelpLength" v-if="isDescriptionValid" class="form-text text-danger">Description is should have more than 5 and than 30 chars.</small>
                     </div>
                     <div class="form-group">
-                        <label for="reminderDescription">City *</label>
+                        <label for="reminderDescription">Search for a City</label>
+                        <iframe  v-if="isLoadingCities" src="https://giphy.com/embed/3oEjI6SIIHBdRxXI40" width="50" height="50" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
                         <autocomplete
-                            ref="autocompleteComponent"
+                            v-model="query"
+                            :data="cities"
+                            @input="fetchCities"
                             @hit="fetchWeather($event)"
                             :serializer="s => s.name"
                             placeholder="Type an City"
-                            :data="cities"
-                            auto-select
+                            ref="autocompleteComponent"
                         ></autocomplete>
+                        <small v-if="isCityValid" class="form-text text-danger">You have to select a city</small>
                     </div>
 
+                    <p v-if="city">Selected City: {{ city.name }}</p>
                     <div class="col-md-12 border-light-gray border rounded d-sm-inline-flex" v-if="weather && weather.description">
                         <div class="col-5 text-center">
                             <img  :src="weather.iconImage" :alt="weather.description" />
@@ -87,18 +90,23 @@
 <script>
 import { ref } from 'vue'
 import {weekDays, weatherIcons} from '@/consts/calendar'
-import citiesJson from '@/consts/city.list.json'
 import axios from 'axios'
 
 export default {
     name: "ReminderForm",
     data() {
         return {
+            worker: null,
+            query: '',
+            isLoadingCities: false,
             description: '',
             time: '',
             color: 'bg-info',
-            city: null,
+            city: '',
+            citySearch: "",
+            firstSubmit: true,
             weather: {},
+            cities: [],
             colorButtons: [
                 {color: 'bg-success'},
                 {color: 'bg-warning'},
@@ -132,6 +140,40 @@ export default {
         this.$emitter.off("hide-modal")
     },
     methods: {
+        fetchCities() {
+            this.worker = null
+
+            const query = this.autocompleteComponent.inputValue.toLowerCase() || ''
+            if(query && query.length > 2) {
+                this.cities = []
+                this.isLoadingCities = true
+                const fetchCities = () => fetch('http://localhost:8080/city.list.json')
+                    .then(response => response.json())
+                    .then(data => this.cities = data.filter(city => city.name.toLowerCase().startsWith(query)))
+                    .then(() => this.isLoadingCities = false)
+
+                const runWorker = () => {
+                    this.worker = this.$worker.create()
+                        .postMessage(`Fetching cities!`)
+                        .then(console.log)
+                        .then(fetchCities.bind(this))
+                        .catch(console.error)
+                        .then(() => this.isLoadingCities = false)
+
+                    this.worker = null
+                }
+
+                this.$_.debounce(runWorker, 150)()
+            } else {
+                // nothing for now.
+                this.isLoadingCities = false
+                this.cities = []
+                if(!query) {
+                    this.city = null
+                    this.weather = null
+                }
+            }
+        },
         configModalOutSideClick(){
             var modal = document.getElementById("reminderFormModal");
 
@@ -148,19 +190,20 @@ export default {
             if(this.reminderFormModal)  this.reminderFormModal.style.display = "none";
         },
         save() {
-            if (!this.selectedReminder) {
-                this.addReminder()
-            } else {
-                this.updateReminder()
+            this.firstSubmit = false
+            const city = this.city || {}
+
+            if (this.time && this.description && city.name) {
+                if (!this.selectedReminder) {
+                    this.addReminder()
+                } else {
+                    this.updateReminder()
+                }
             }
         },
         addReminder() {
-            const city = this.city || {}
-
-            if (this.time && this.description && this.description.length > 5 && city.name) {
-                this.$emit('add-reminder', this.reminderObject())
-                this.$emitter.emit('hide-modal')
-            }
+            this.$emit('add-reminder', this.reminderObject())
+            this.$emitter.emit('hide-modal')
         },
         removeReminder() {
             this.$emit('remove-reminder', this.reminderObject())
@@ -188,6 +231,7 @@ export default {
         cleanInputs() {
             if(this.autocompleteComponent) this.autocompleteComponent.inputValue = ""
 
+            this.firstSubmit = true
             this.description = ''
             this.time = ''
             this.color = 'bg-info'
@@ -211,6 +255,8 @@ export default {
                 .then(this.setWeather.bind(this))
         },
         setWeather({data}) {
+            // eslint-disable-next-line no-debugger
+            debugger
             const convertCelsius = (temperature) => {
                 return Math.round(temperature - 273.15)
             }
@@ -249,11 +295,17 @@ export default {
         },
     },
     computed: {
-        weatherIcons(){
-            return weatherIcons
+        isTimeValid(){
+            return !this.time && !this.firstSubmit
         },
-        cities() {
-            return citiesJson
+        isCityValid(){
+            return !this.city && !this.firstSubmit
+        },
+        isDescriptionValid(){
+            return !this.description && !this.firstSubmit
+        },
+        weatherIcons() {
+            return weatherIcons
         },
         actualSelectedDayFormatted() {
             return `${weekDays[this.selectedDate.day()]} ${this.selectedDate.format('DD')} from ${this.selectedDate.format('MMMM')}`
@@ -263,6 +315,10 @@ export default {
 </script>
 
 <style scoped>
+.giphy-embed{
+    position: absolute;
+    transform: translate(0px, -15px);
+}
 
 /* The Modal (background) */
 .modal {

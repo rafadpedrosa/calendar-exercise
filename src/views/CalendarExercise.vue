@@ -29,9 +29,6 @@ export default {
     },
     mounted() {
         this.$store.commit('BUILD_CALENDAR', this.currentDateTime)
-        this.$store.commit('BUILD_CALENDAR', this.currentDateTime)
-        this.$store.commit('BUILD_CALENDAR', this.currentDateTime)
-        this.$store.commit('BUILD_CALENDAR', this.currentDateTime)
 
         setInterval(this.updateCurrentDateTime.bind(this), 60000)
     },
