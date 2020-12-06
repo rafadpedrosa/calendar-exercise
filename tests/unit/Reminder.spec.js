@@ -40,6 +40,7 @@ describe('New Reminder Tests ', () => {
     it('Should Create A New Reminder', async () => {
         vm.time = '13:00'
         vm.description = 'Rafael Pedrosa'
+        vm.city = {"id":3390760,"name":"Recife","state":"","country":"BR","coord":{"lon":-34.881111,"lat":-8.05389}}
 
         await nextTick()
         await cmp.find('#save-button').trigger('click')
